@@ -1,0 +1,277 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Absensi Karyawan</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.17.3/xlsx.full.min.js"></script>
+    <style>
+        body {
+            background-image: url('background.jpg');
+            background-size: cover;
+            background-position: center;
+            text-align: center;
+            font-family: Arial, sans-serif;
+            color: white;
+        }
+        .container {
+            background: rgba(0, 0, 0, 0.7);
+            padding: 20px;
+            border-radius: 10px;
+            display: inline-block;
+            margin-top: 50px;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+            background: white;
+            color: black;
+        }
+        th, td {
+            border: 1px solid black;
+            padding: 8px;
+            text-align: left;
+        }
+        th {
+            background-color: #f2f2f2;
+        }
+        .separator {
+            width: 100%;
+            height: 5px;
+            background: white;
+            margin: 20px 0;
+        }
+        #rekapList {
+            margin-top: 20px;
+            text-align: left;
+            color: white;
+        }
+        #rekapList button {
+            margin-top: 5px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Absensi Karyawan</h1>
+        <label>Nama: 
+            <select id="nama">
+                <option value="Cucu Maesaroh">Cucu Maesaroh</option>
+                <option value="Jalaludin">Jalaludin</option>
+                <option value="Rodiansyah">Rodiansyah</option>
+                <option value="Jafar Tihun">Jafar Tihun</option>
+                <option value="Amaludin">Amaludin</option>
+                <option value="Abdul muiz">Abdul muiz</option>
+                <option value="Rena">Rena</option>
+                <option value="Pitri">Pitri</option>
+                <option value="Anisa">Anisa</option>
+                <option value="Muthoharoh">Muthoharoh</option>
+                <option value="Helva">Helva</option>
+                <option value="Sonia">Sonia</option>
+                <option value="St Patimah">St Patimah</option>
+                <option value="Salman farisi">Salman farisi</option>
+                <option value="Itim siti Fatimah">Itim siti Fatimah</option>
+                <option value="Septiani">Septiani</option>
+                <option value="Yuliana">Yuliana</option>
+                <option value="Faiz">Faiz</option>
+                <option value="Adit">Adit</option>
+                <option value="Ujang">Ujang</option>
+                <option value="Kevin dimas">Kevin dimas</option>
+                <option value="Abdul rohman Fauzie">Abdul rohman Fauzie</option>
+                <option value="Aril">Aril</option>
+                <option value="Farhan">Farhan</option>
+                <option value="Agus Salim">Agus Salim</option>
+                <option value="Ikram">Ikram</option>
+            </select>
+        </label>
+        <label>Status:
+            <select id="status" onchange="toggleKeterangan(); toggleTombolPulang();">
+                <option value="Hadir">Hadir</option>
+                <option value="Izin">Izin</option>
+                <option value="Sakit">Sakit</option>
+                <option value="Alfa">Alfa</option>
+            </select>
+        </label>
+        <label id="keteranganLabel" style="display: none;">Keterangan: <input type="text" id="keterangan"></label>
+        <button onclick="absenMasuk()">Absen Masuk</button>
+        <button id="tombolPulang" onclick="absenPulang()">Absen Pulang</button>
+        <button onclick="rekapHarian()">Rekap Harian</button>
+        <button onclick="hapusSemuaData()">Hapus Semua Data</button>
+        
+        <table id="absensiTable">
+            <thead>
+                <tr>
+                    <th>Nama</th>
+                    <th>Status</th>
+                    <th>Keterangan</th>
+                    <th>Waktu Masuk</th>
+                    <th>Waktu Pulang</th>
+                    <th>Tanggal</th>
+                    <th>Aksi</th>
+                </tr>
+            </thead>
+            <tbody></tbody>
+        </table>
+    </div>
+
+    <div class="separator"></div>
+
+    <h2>Selamat Datang!</h2>
+
+    <div id="rekapList">
+        <h3>Rekap Harian Sebelumnya:</h3>
+        <div id="rekapItems"></div>
+    </div>
+
+    <script>
+        function toggleKeterangan() {
+            let status = document.getElementById("status").value;
+            let keteranganLabel = document.getElementById("keteranganLabel");
+            keteranganLabel.style.display = (status === "Izin") ? "inline" : "none";
+        }
+
+        function toggleTombolPulang() {
+            let status = document.getElementById("status").value;
+            let tombolPulang = document.getElementById("tombolPulang");
+            tombolPulang.style.display = (status === "Hadir") ? "inline-block" : "none";
+        }
+
+        function absenMasuk() {
+            let nama = document.getElementById("nama").value;
+            let status = document.getElementById("status").value;
+            let keterangan = (status === "Izin") ? document.getElementById("keterangan").value : "-";
+            let waktuMasuk = new Date().toLocaleTimeString();
+            let tanggal = new Date().toLocaleDateString();
+
+            if (nama.trim() === "") {
+                alert("Nama tidak boleh kosong!");
+                return;
+            }
+
+            let table = document.getElementById("absensiTable").getElementsByTagName('tbody')[0];
+            let newRow = table.insertRow();
+            newRow.insertCell(0).textContent = nama;
+            newRow.insertCell(1).textContent = status;
+            newRow.insertCell(2).textContent = keterangan;
+            newRow.insertCell(3).textContent = waktuMasuk;
+            newRow.insertCell(4).textContent = (status === "Hadir") ? "-" : "N/A";
+            newRow.insertCell(5).textContent = tanggal;
+            let aksiCell = newRow.insertCell(6);
+            let hapusBtn = document.createElement("button");
+            hapusBtn.textContent = "Hapus";
+            hapusBtn.onclick = function() { hapusBaris(this); };
+            aksiCell.appendChild(hapusBtn);
+        }
+
+        function absenPulang() {
+            let nama = document.getElementById("nama").value;
+            let waktuPulang = new Date().toLocaleTimeString();
+            let table = document.getElementById("absensiTable").getElementsByTagName('tbody')[0];
+
+            for (let i = 0; i < table.rows.length; i++) {
+                if (table.rows[i].cells[0].textContent === nama && table.rows[i].cells[4].textContent === "-") {
+                    table.rows[i].cells[4].textContent = waktuPulang;
+                    return;
+                }
+            }
+            alert("Nama tidak ditemukan atau sudah absen pulang!");
+        }
+
+        function hapusBaris(btn) {
+            let row = btn.parentNode.parentNode;
+            row.parentNode.removeChild(row);
+        }
+
+        function hapusSemuaData() {
+            if (confirm("Apakah Anda yakin ingin menghapus semua data absensi?")) {
+                document.getElementById("absensiTable").getElementsByTagName('tbody')[0].innerHTML = "";
+            }
+        }
+
+        function rekapHarian() {
+            let table = document.getElementById("absensiTable");
+            let tbody = table.getElementsByTagName('tbody')[0];
+            let rows = [...tbody.rows].map(row => {
+                return [...row.cells].map(cell => cell.textContent);
+            });
+
+            if (rows.length === 0) {
+                alert("Belum ada data untuk direkap.");
+                return;
+            }
+
+            // Tambahkan header untuk Excel
+            let header = [
+                "Nama", "Status", "Keterangan", "Waktu Masuk", "Waktu Pulang", "Tanggal", "Aksi"
+            ];
+            rows.unshift(header); // Menambahkan header di awal data
+
+            // Membuat worksheet dan workbook
+            let ws = XLSX.utils.aoa_to_sheet(rows);
+            let wb = XLSX.utils.book_new();
+            XLSX.utils.book_append_sheet(wb, ws, "Absensi Harian");
+
+            // Menyimpan file Excel dengan nama sesuai tanggal
+            let today = new Date().toISOString().split('T')[0];
+            XLSX.writeFile(wb, Absensi_${today}.xlsx);
+
+            // Simpan data ke localStorage dengan key berdasarkan tanggal
+            localStorage.setItem(rekap_${today}, JSON.stringify(rows));
+            alert(Rekap tanggal ${today} telah disimpan.);
+
+            // Kosongkan tabel dan perbarui daftar rekap yang tersimpan
+            tbody.innerHTML = "";
+            updateRekapList();
+        }
+
+        function updateRekapList() {
+            let rekapListDiv = document.getElementById("rekapItems");
+            rekapListDiv.innerHTML = ""; // Hapus daftar sebelumnya
+
+            // Ambil semua key rekap yang ada di localStorage
+            for (let i = 0; i < localStorage.length; i++) {
+                let key = localStorage.key(i);
+                if (key.startsWith("rekap_")) {
+                    let tanggal = key.split("_")[1];
+                    let button = document.createElement("button");
+                    button.textContent = Lihat Rekap ${tanggal};
+                    button.onclick = function() {
+                        tampilkanRekapTanggal(tanggal);
+                    };
+                    rekapListDiv.appendChild(button);
+                    rekapListDiv.appendChild(document.createElement("br"));
+                }
+            }
+        }
+
+        function tampilkanRekapTanggal(tanggal) {
+            let data = JSON.parse(localStorage.getItem(rekap_${tanggal}));
+            if (!data) {
+                alert(Tidak ada rekap untuk tanggal ${tanggal});
+                return;
+            }
+
+            let tbody = document.getElementById("absensiTable").getElementsByTagName('tbody')[0];
+            tbody.innerHTML = "";
+            data.forEach(rowData => {
+                let newRow = tbody.insertRow();
+                rowData.forEach((cellData, index) => {
+                    let cell = newRow.insertCell(index);
+                    cell.textContent = cellData;
+                });
+
+                let aksiCell = newRow.cells[6];
+                aksiCell.innerHTML = "";
+                let hapusBtn = document.createElement("button");
+                hapusBtn.textContent = "Hapus";
+                hapusBtn.onclick = function () { hapusBaris(this); };
+                aksiCell.appendChild(hapusBtn);
+            });
+        }
+
+        // Memperbarui daftar rekap saat halaman dimuat
+        window.onload = updateRekapList;
+    </script>
+</body>
+</html>
